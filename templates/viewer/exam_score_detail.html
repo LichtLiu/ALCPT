@@ -1,0 +1,108 @@
+{% extends 'new_base.html' %}
+
+{% block path %}
+<li class="breadcrumb-item" aria-current="page">
+    <a href="{{ url('exam_score_list') }}">{{trans("View Testee Score")}}</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">
+    {{trans("View")}} - {{ exam.name }}
+</li>
+{% endblock %}
+
+{% block content %}
+<main class="view-exam-score-detail">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2>{{ exam.name }}</h2>
+                <div class="table-responsive" style="height: 65vh">
+                    <table class="table table-hover">
+                        <thead class="thead-light">
+                            <th class="text-center">{{trans("Account ID")}}</th>
+                            <th class="text-center">{{trans("Name")}}</th>
+                            <th class="text-center">{{trans("Score")}}</th>
+                            <th class="text-right"></th>
+                        </thead>
+
+                        <tbody>
+                            {% for testee, answer_sheet in testeeData %}
+                            <tr>
+                                <td class="text-center">
+                                    {% if testee.student %}
+                                    {{ testee.student.stu_id }}
+                                    {% else %}
+                                    {{ testee.reg_id }}
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">{{ testee.name }}</td>
+
+                                {% if answer_sheet.is_tested == False %}
+                                <td class="text-center" data-title="Type" style="color: #c12e2a">未進行測驗</td>
+                                {% elif answer_sheet.score  < 60 %}
+                                <td class="text-center" data-title="Type" style="color: #c12e2a">{{ answer_sheet.score }}</td>
+                                {% else %}
+                                <td class="text-center" data-title="Type" style="color: #00A600">{{ answer_sheet.score }}</td>
+                                {% endif %}
+
+                                <td class="text-right">
+                                    {% if testee.student %}
+                                    <a href="{{ url('view_testee_info', args=[exam.id, testee.reg_id]) }}">&rightarrow;</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <h2>成績考核</h2>
+                <table class="table table-hover table-striped">
+                    <tbody>
+                        <tr>
+                            <td class="text-center" data-title="Type">平均分數：</td>
+                            <td class="text-left" data-title="Type">{{ exam.average_score }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" data-title="Type">考生人數：</td>
+                            <td class="text-left" data-title="Type">{{ testee_number }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" data-title="Type"">未考試人數：</td>
+                            <td class=" text-left" data-title="Type" style="color: #c12e2a">{{ testee_not_tested }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" data-title="Type">及格人數：</td>
+                            <td class="text-left" data-title="Type" style="color: green">{{ qualified }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center" data-title="Type">不及格人數：</td>
+                            <td class="text-left" data-title="Type" style="color: #c12e2a">{{ unqualified }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                {% autoescape off %}
+                {{ pie_chart }}
+                {% endautoescape %}
+                {% autoescape off %}
+                {{ bar_chart }}
+                {% endautoescape %}
+            </div>
+            <div class="float-right">
+                <button class="btn btn-primary" onclick="history.go(-1)">{{trans("OK")}}</button>
+            </div>
+        </div>
+    </div>
+</main>
+<style>
+    .view-exam-score-detail .container .row .col-md-6 table>tbody>tr>td>a {
+        text-decoration: none;
+        visibility: hidden;
+    }
+
+    .view-exam-score-detail .container .row .col-md-6 table>tbody>tr:hover>td>a {
+        visibility: visible;
+    }
+</style>
+{% endblock %}
